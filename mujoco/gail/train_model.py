@@ -9,7 +9,6 @@ def train_discrim(discrim, memory, discrim_optim, demonstrations, args):
 
     states = torch.Tensor(states)
     actions = torch.Tensor(actions)
-        
     criterion = torch.nn.BCELoss()
 
     for _ in range(args.discrim_update_num):
@@ -19,7 +18,6 @@ def train_discrim(discrim, memory, discrim_optim, demonstrations, args):
 
         discrim_loss = criterion(learner, torch.ones((states.shape[0], 1))) + \
                         criterion(expert, torch.zeros((demonstrations.shape[0], 1)))
-                
         discrim_optim.zero_grad()
         discrim_loss.backward()
         discrim_optim.step()
@@ -53,13 +51,13 @@ def train_actor_critic(actor, critic, memory, actor_optim, critic_optim, args):
         for i in range(n // args.batch_size): 
             batch_index = arr[args.batch_size * i : args.batch_size * (i + 1)]
             batch_index = torch.LongTensor(batch_index)
-            
+
             inputs = torch.Tensor(states)[batch_index]
             actions_samples = torch.Tensor(actions)[batch_index]
             returns_samples = returns.unsqueeze(1)[batch_index]
             advants_samples = advants.unsqueeze(1)[batch_index]
             oldvalue_samples = old_values[batch_index].detach()
-            
+
             values = critic(inputs)
             clipped_values = oldvalue_samples + \
                              torch.clamp(values - oldvalue_samples,
